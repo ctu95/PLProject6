@@ -8,6 +8,7 @@ DEBUG = True
 # Namespace & built-in functions
 
 name = {}
+variables = {}
 
 def cons(l):
     return [l[0]] + l[1]
@@ -57,6 +58,9 @@ def cond(l):
 name['cond'] = cond
 
 def add(l):
+    for i in range(len(l)):
+        if l[i] in variables:
+            l[i] = variables[l[i]]
     return sum(l)
 
 name['+'] = add
@@ -67,10 +71,43 @@ def minus(l):
 
 name['-'] = minus
 
+def multiply(l):
+    for i in range(len(l)):
+        if l[i] in variables:
+            l[i] = variables[l[i]]
+    product = 1
+    for i in range(len(l)):
+        product = product * l[i]
+    return product
+
+name['*'] = multiply
+
+def divide(l):
+    for i in range(len(l)):
+        if l[i] in variables:
+            l[i] = variables[l[i]]
+    quotient = l[0]
+    try:
+        for i in range(1, len(l)):
+            quotient = quotient / l[i]
+        return quotient
+    except ZeroDivisionError:
+        print("You cannot divide by 0.")
+        return
+
+name['/'] = divide
+
 def _print(l):
     print lisp_str(l[0])
 
 name['print'] = _print
+
+def let(l):
+    # clear variables
+    variables.clear()
+    return l[-1]
+
+name['let'] = let
 
 #  Evaluation functions
 
@@ -78,11 +115,17 @@ def lisp_eval(simb, items):
     if simb in name:
         return call(name[simb], eval_lists(items))
     else:
-       return [simb] + items
+        assign(simb,items[0])
+        return variables[simb]
+
+def assign(k,v):
+    if k not in variables:
+        variables[k] = v
+    return
 
 def call(f, l):
     try:
-        return f(eval_lists(l))  
+        return f(eval_lists(l))
     except TypeError:
         return f
 
@@ -122,6 +165,14 @@ def lisp_str(l):
         return str(l)
 
 # BNF
+
+# def p_assign(p):
+#     'assignment : LET LPAREN SIMB NUM RPAREN'
+#     variables[p[3]] = p[4]
+#
+# def p_exp_let_call(p):
+#     'exp : LPAREN assignment call RPAREN'
+#     p[0] = p[3]
 
 def p_exp_atom(p):
     'exp : atom'
@@ -166,7 +217,7 @@ def p_item_list(p):
 def p_item_list(p):
     'item : quoted_list'
     p[0] = p[1]
-        
+
 def p_item_call(p):
     'item : call'
     p[0] = p[1]
@@ -177,8 +228,9 @@ def p_item_empty(p):
 
 def p_call(p):
     'call : LPAREN SIMB items RPAREN'
-    if DEBUG: print "Calling", p[2], "with", p[3] 
-    p[0] = lisp_eval(p[2], p[3])   
+    if DEBUG: print "Calling", p[2], "with", p[3]
+    p[0] = lisp_eval(p[2], p[3])
+
 
 def p_atom_simbol(p):
     'atom : SIMB'
@@ -196,7 +248,7 @@ def p_atom_word(p):
     'atom : TEXT'
     p[0] = p[1]
 
-def p_atom_empty(p): 
+def p_atom_empty(p):
     'atom :'
     pass
 
@@ -220,5 +272,6 @@ def p_error(p):
 # Use this if you want to build the parser using SLR instead of LALR
 # yacc.yacc(method="SLR")
 yacc.yacc()
+
 
 
