@@ -66,8 +66,17 @@ def add(l):
 name['+'] = add
 
 def minus(l):
-    '''Unary minus'''
-    return -l[0]
+    '''Unary Minus'''
+    if len(l) == 1:
+        return -l[0]
+    else:
+        for i in range(len(l)):
+            if l[i] in variables:
+                l[i] = variables[l[i]]
+        diff = l[0]
+        for i in range(1, len(l)):
+            diff -= l[i]
+        return diff
 
 name['-'] = minus
 
