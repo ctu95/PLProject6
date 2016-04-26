@@ -118,6 +118,15 @@ def let(l):
 
 name['let'] = let
 
+
+def evaluate_if(l):
+    if l[0] == True:
+        return l[1]
+    else:
+        return l[2]
+
+name['if'] = evaluate_if
+
 #  Evaluation functions
 
 def lisp_eval(simb, items):
@@ -125,7 +134,6 @@ def lisp_eval(simb, items):
         return call(name[simb], eval_lists(items))
     else:
         assign(simb,items[0])
-        return variables[simb]
 
 def assign(k,v):
     if k not in variables:
