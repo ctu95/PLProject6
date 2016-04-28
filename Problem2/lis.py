@@ -66,8 +66,7 @@ def standard_env():
         'length':  len, 
         'list':    lambda *x: list(x), 
         'list?':   lambda x: isinstance(x,list), 
-        'map':     lambda x: [ eval(x[0])(i) for i in x[1:]],
-        #'map':     map,
+        'map':     map,
         'max':     max,
         'min':     min,
         'not':     op.not_,
@@ -76,6 +75,7 @@ def standard_env():
         'procedure?': callable,
         'round':   round,
         'symbol?': lambda x: isinstance(x, Symbol),
+        'pi':   math.pi,
     })
     return env
 
